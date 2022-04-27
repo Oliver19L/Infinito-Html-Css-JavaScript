@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <style>
+      :root {
+        --image-width: 200px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        align-items: center;
+        display: flex;
+        min-height: 100vh;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .container:before {
+        background-color: #000;
+        content: " ";
+        inset-block: 0;
+        inset-inline-start: 50%;
+        position: absolute;
+        transform: translateX(-2px);
+        width: 4px;
+      }
+
+      .images {
+        --gap: 20px;
+        --current-image: 0;
+        display: flex;
+        gap: var(--gap);
+        inset-inline-start: calc(50% - var(--image-width) / 2);
+        position: absolute;
+        transform: translateX(
+          calc(((var(--image-width) + var(--gap)) * var(--current-image)) * -1)
+        );
+        transition: all 0.3s cubic-bezier(0.81, -0.06, 0.18, 1.4);
+      }
+
+      .image {
+        border-radius: 9999px;
+        box-shadow: 0 2px 4px hsl(0 0% 0% / 0.15);
+        height: 400px;
+        object-fit: cover;
+        width: var(--image-width);
+      }
+
+      .text {
+        font-size: 40px;
+        inset-block-start: 40px;
+        inset-inline-start: 40px;
+        position: absolute;
+      }
+
+      .button {
+        display: block;
+        inset-block-start: 40px;
+        inset-inline-end: 40px;
+        padding: 8px;
+        position: absolute;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="images"></div>
+    </div>
+    <div class="text"></div>
+    <button class="button">Next</button>
+
+    <script>
+      const BASE_API_URL = "https://rickandmortyapi.com/api";
+      const IMAGE_GAP = 20;
+      const IMAGE_WIDTH = 200;
+      const IMAGE_BIG_WIDTH = 300;
+
+      const imagesEl = document.querySelector(".images");
+      const textEl = document.querySelector(".text");
+
+      function createImage(character) {
+        const imageEl = document.createElement("img");
+
+        imageEl.classList.add("image");
+        imageEl.src = character.image;
+
+        return imageEl;
+      }
+
+      async function init() {
+        const index = null;
+        const resp = await fetch(`${BASE_API_URL}/character`);
+        const { results } = await resp.json();
+
+        textEl.textContent = results[0].name;
+
+        results.forEach((character) => {
+          const image = createImage(character);
+
+          imagesEl.appendChild(image);
+        });
+
+        let currentIndex = 0;
+
+        // document.querySelector('.button').addEventListener('click', (e) => {
+        //   const {target} = e
+        //   const current = getComputedStyle(imagesEl)
+        //     .getPropertyValue('--current-image')
+        //     .trim()
+        //   const nextNumber = Number(current) + 1
+
+        //   if (nextNumber < results.length) {
+        //     imagesEl.style.setProperty('--current-image', nextNumber)
+        //   }
+        // })
+
+        document.querySelector(".button").addEventListener("click", (e) => {
+          const { target } = e;
+          const nextNumber = ++currentIndex;
+
+          if (nextNumber < results.length) {
+            imagesEl.style.transform = `translateX(-${
+              (IMAGE_WIDTH + IMAGE_GAP) * nextNumber
+            }px)`;
+
+            textEl.textContent = results[nextNumber].name;
+          }
+        });
+      }
+
+      init();
+    </script>
+  </body>
+</html>
